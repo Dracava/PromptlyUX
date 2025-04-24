@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* STYLE_PLACEHOLDER */
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <div class="nav-bar">
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-section="chat">Chat</div>
+            <div class="nav-tab" data-section="prompts">Prompts</div>
+            <div class="chevron-toggle" id="collapseToggle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Chat Section -->
+        <div class="section active" id="chat">
+            <div class="chat-container">
+                <div class="api-key-container" id="apiKeyContainer">
+                    <button class="close-api-dialog" id="closeApiDialog" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--light-gray);">×</button>
+                    <h3>Enter your OpenAI API Key</h3>
+                    <p>Your key will be used only in this session and won't be stored.
+                        <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer"
+                            style="color: var(--main-purple); text-decoration: underline; text-underline-offset: 2px;">
+                            You can find yours here.
+                        </a>
+                    </p>
+                    <input type="password" class="api-key-input" id="apiKeyInput" placeholder="sk-..." />
+                    <div style="display: flex; justify-content: center; margin-top: 20px;">
+                        <button class="button button-primary" id="verifyKeyButton">Verify Key</button>
+                    </div>
+                </div>
+                <div class="zoom-controls">
+                    <button class="zoom-button" id="zoomOut" title="Zoom Out (Ctrl/Cmd + -)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>
+                    </button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button class="zoom-button" id="zoomIn" title="Zoom In (Ctrl/Cmd + +)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            <line x1="11" y1="8" x2="11" y2="14"></line>
+                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="chat-messages">
+                    <!-- Initial welcome message will be added by JavaScript -->
+                </div>
+                <div class="prompt-suggestions-container">
+                    <div class="prompt-suggestions-row">
+                        <div class="prompt-suggestions" id="promptSuggestions">
+                            <!-- Prompt suggestion tabs will be dynamically added here -->
+                        </div>
+                        <button class="regenerate-button" id="regenerateButton" title="Regenerate">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea class="chat-input" placeholder="Type your message here..." disabled></textarea>
+                    <button class="button-icon" id="sendButton" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prompts Section -->
+        <div class="section" id="prompts">
+            <div class="prompt-container">
+                <div class="prompts-grid">
+                    <div class="category" id="startCategory" onclick="document.querySelector('.prompts-grid').style.display = 'none'; document.getElementById('questionnaireContainer').style.display = 'block'; if(typeof initializeOptionItems === 'function') { initializeOptionItems(); } return false;">
+                        <div class="category-content">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                            </svg>
+                            <h3 class="category-title">Start</h3>
+                        </div>
+                    </div>
+                    <div class="category" id="savedCategory" onclick="showSavedPage()">
+                        <div class="category-content">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="category-icon" viewBox="0 0 24 24">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <h3 class="category-title">Saved</h3>
+                        </div>
+                    </div>
+                    <div class="category" id="libraryCategory" onclick="showLibraryPage()">
+                        <div class="category-content">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="category-icon" viewBox="0 0 24 24">
+                                <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/>
+                            </svg>
+                            <h3 class="category-title">Library</h3>
+                        </div>
+                    </div>
+                    <div class="category" id="generateCategory" onclick="showGeneratePage()">
+                        <div class="category-content">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="category-icon" viewBox="0 0 24 24">
+                                <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
+                            </svg>
+                            <h3 class="category-title">Generate</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Add the questionnaire directly in the prompts section -->
+                <div class="questionnaire-container" id="questionnaireContainer">
+                    <button class="back-button" id="backToCategories" onclick="document.getElementById('questionnaireContainer').style.display = 'none'; document.querySelector('.prompts-grid').style.display = 'grid'; return false;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/>
+                        </svg>
+                        Back
+                    </button>
+                    <div class="category-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="category-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+                        </svg>
+                        <h2>Start</h2>
+                    </div>
+                    <p class="questionnaire-description">Fill in this survey to generate a project overview.<br>Send this to the chat to give it context.</p>
+                    <div class="questionnaire">
+                        <div class="question-item">
+                            <h3 class="question-title">1. Give a short description of your current design project</h3>
+                            <textarea class="text-input" id="projectDescription" placeholder="Briefly describe your project goals and context..."></textarea>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">2. What is the target audience for your design?</h3>
+                            <textarea class="text-input" id="targetAudience" placeholder="Describe your target audience, their needs, and characteristics..."></textarea>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">3. What type of project are you working on?</h3>
+                            <div class="option-grid">
+                                <div class="option-item" data-value="Website">
+                                    <div class="option-label">Website</div>
+                                </div>
+                                <div class="option-item" data-value="Mobile App">
+                                    <div class="option-label">Mobile App</div>
+                                </div>
+                                <div class="option-item" data-value="Desktop Software">
+                                    <div class="option-label">Desktop Software</div>
+                                </div>
+                                <div class="option-item other" data-value="Other">
+                                    <div class="option-label">Other</div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">4. What is the main goal of your design project? (Multiple answers possible)</h3>
+                            <div class="option-grid multiple-select">
+                                <div class="option-item" data-value="Usability">
+                                    <div class="option-label">Usability</div>
+                                </div>
+                                <div class="option-item" data-value="Accessibility">
+                                    <div class="option-label">Accessibility</div>
+                                </div>
+                                <div class="option-item" data-value="Aesthetics">
+                                    <div class="option-label">Aesthetics</div>
+                                </div>
+                                <div class="option-item" data-value="User Engagement">
+                                    <div class="option-label">User Engagement</div>
+                                </div>
+                                <div class="option-item" data-value="Efficiency">
+                                    <div class="option-label">Efficiency</div>
+                            </div>
+                                <div class="option-item" data-value="Learnability">
+                                    <div class="option-label">Learnability</div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">5. What's your level in Figma?</h3>
+                            <div class="option-grid">
+                                <div class="option-item" data-value="Beginner">
+                                    <div class="option-label">Beginner</div>
+                                </div>
+                                <div class="option-item" data-value="Intermediate">
+                                    <div class="option-label">Intermediate</div>
+                                </div>
+                                <div class="option-item" data-value="Advanced">
+                                    <div class="option-label">Advanced</div>
+                                </div>
+                                <div class="option-item" data-value="Expert">
+                                    <div class="option-label">Expert</div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">6. Do you have a preferred design style?</h3>
+                            <div class="option-grid">
+                                <div class="option-item" data-value="Modern">
+                                    <div class="option-label">Modern</div>
+                                </div>
+                                <div class="option-item" data-value="Experimental">
+                                    <div class="option-label">Experimental</div>
+                                </div>
+                                <div class="option-item" data-value="Professional">
+                                    <div class="option-label">Professional</div>
+                                </div>
+                                <div class="option-item" data-value="Playful">
+                                    <div class="option-label">Playful</div>
+                                </div>
+                                <div class="option-item" data-value="Informative">
+                                    <div class="option-label">Informative</div>
+                                </div>
+                                <div class="option-item" data-value="No preference">
+                                    <div class="option-label">No preference</div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">7. How complex is your final product?</h3>
+                            <div class="option-grid">
+                                <div class="option-item" data-value="It has 1-3 purposes">
+                                    <div class="option-label">It has 1-3 purposes</div>
+                                </div>
+                                <div class="option-item" data-value="It has 3-5 purposes">
+                                    <div class="option-label">It has 3-5 purposes</div>
+                                </div>
+                                <div class="option-item" data-value="It has 5+ purposes">
+                                    <div class="option-label">It has 5+ purposes</div>
+                                </div>
+                                <div class="option-item" data-value="I am unsure">
+                                    <div class="option-label">I am unsure</div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">8. Describe some of the purposes:</h3>
+                            <textarea class="text-input" id="purposes" placeholder="E.g. conversion (webshop), informative (news/blog), community (social network), entertainment (streaming) etc."></textarea>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">9. What stage are you in within the design process?</h3>
+                            <div class="option-grid">
+                                <div class="option-item" data-value="Research">
+                                    <div class="option-label">Research</div>
+                                </div>
+                                <div class="option-item" data-value="Wireframing">
+                                    <div class="option-label">Wireframing</div>
+                                </div>
+                                <div class="option-item" data-value="Prototyping">
+                                    <div class="option-label">Prototyping</div>
+                                </div>
+                                <div class="option-item" data-value="User Testing">
+                                    <div class="option-label">User Testing</div>
+                                </div>
+                            </div>
+                        </div>
+        
+                        <div class="question-item">
+                            <h3 class="question-title">10. Do you have other guidelines or remarks regarding this project?</h3>
+                            <textarea class="text-input" id="guidelines" placeholder="Add any additional guidelines, requirements, or remarks that might be relevant..."></textarea>
+                        </div>
+        
+                        <div class="button-container">
+                            <button class="button button-primary" id="makeOverviewButton">Make Overview</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* SCRIPT_PLACEHOLDER */
+    </script>
+    <script src="generate.js"></script>
+    <script src="library.js"></script>
+    
+    <script>
+        // Function to show the "Saved Prompts" page
+        function showSavedPage() {
+            console.log('showSavedPage called');
+            
+            // Get the prompt container
+            const promptsContainer = document.querySelector('.prompt-container');
+            if (!promptsContainer) {
+                console.error('Prompt container not found');
+                return;
+            }
+            
+            // Save the original content
+            if (!promptsContainer.getAttribute('data-original-content')) {
+                promptsContainer.setAttribute('data-original-content', promptsContainer.innerHTML);
+            }
+            
+            // Clear the container
+            promptsContainer.innerHTML = '';
+            
+            // Create a container with proper class for styling
+            const container = document.createElement('div');
+            container.className = 'saved-prompts-container';
+            container.style.padding = '20px';
+            container.style.maxWidth = '800px';
+            container.style.margin = '0 auto';
+            
+            // Create the back button
+            const backButton = document.createElement('button');
+            backButton.className = 'back-button';
+            backButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/>
+                </svg>
+                Back
+            `;
+            backButton.style.marginBottom = '20px';
+            
+            // Create the title
+            const title = document.createElement('h2');
+            title.textContent = 'Saved Prompts';
+            title.style.color = 'var(--white-1)';
+            title.style.marginBottom = '20px';
+            
+            // Create the empty state message
+            const emptyState = document.createElement('div');
+            emptyState.className = 'empty-state';
+            emptyState.style.textAlign = 'center';
+            emptyState.style.padding = '40px 20px';
+            emptyState.style.backgroundColor = 'var(--eerie-black-1)';
+            emptyState.style.borderRadius = '8px';
+            emptyState.style.marginTop = '30px';
+            
+            // Add the star icon
+            const starIcon = document.createElement('div');
+            starIcon.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" style="margin-bottom: 16px; opacity: 0.5;">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="var(--main-purple)"></polygon>
+                </svg>
+            `;
+            
+            // Add the message
+            const message = document.createElement('p');
+            message.textContent = 'You have no saved prompts yet';
+            message.style.fontSize = '18px';
+            message.style.color = 'var(--white-2)';
+            message.style.marginBottom = '16px';
+            
+            // Add the description
+            const description = document.createElement('p');
+            description.textContent = 'Your saved prompts will appear here.';
+            description.style.color = 'var(--light-gray)';
+            description.style.fontSize = '14px';
+            
+            // Add elements to the empty state
+            emptyState.appendChild(starIcon);
+            emptyState.appendChild(message);
+            emptyState.appendChild(description);
+            
+            // Add event listener to the back button
+            backButton.addEventListener('click', function() {
+                console.log('Back button clicked in Saved page');
+                // Restore the original content with the grid categories
+                if (promptsContainer.getAttribute('data-original-content')) {
+                    promptsContainer.innerHTML = promptsContainer.getAttribute('data-original-content');
+                    
+                    // Re-add click handlers to categories
+                    const generateCategory = document.getElementById('generateCategory');
+                    if (generateCategory) {
+                        generateCategory.onclick = function() {
+                            showGeneratePage();
+                            return false;
+                        };
+                    }
+                    
+                    const startCategory = document.getElementById('startCategory');
+                    if (startCategory) {
+                        startCategory.onclick = function() {
+                            showStartPage();
+                            return false;
+                        };
+                    }
+                    
+                    const libraryCategory = document.getElementById('libraryCategory');
+                    if (libraryCategory) {
+                        libraryCategory.onclick = function() {
+                            showLibraryPage();
+                            return false;
+                        };
+                    }
+                    
+                    const savedCategory = document.getElementById('savedCategory');
+                    if (savedCategory) {
+                        savedCategory.onclick = function() {
+                            showSavedPage();
+                            return false;
+                        };
+                    }
+                }
+            });
+            
+            // Add elements to the container
+            container.appendChild(backButton);
+            container.appendChild(title);
+            container.appendChild(emptyState);
+            
+            // Add the container to the prompts container
+            promptsContainer.appendChild(container);
+        }
+        
+        // Simple implementation of showLibraryPage in case the library.js file doesn't load properly
+        if (typeof showLibraryPage !== 'function') {
+            function showLibraryPage() {
+                console.log('showLibraryPage called (fallback implementation)');
+                
+                // Get the prompt container
+                const promptsContainer = document.querySelector('.prompt-container');
+                if (!promptsContainer) {
+                    console.error('Prompt container not found');
+                    return;
+                }
+                
+                // Save the original content
+                if (!promptsContainer.getAttribute('data-original-content')) {
+                    promptsContainer.setAttribute('data-original-content', promptsContainer.innerHTML);
+                }
+                
+                // Clear the container
+                promptsContainer.innerHTML = '';
+                
+                // Create a simple container
+                const container = document.createElement('div');
+                container.style.padding = '20px';
+                container.style.maxWidth = '800px';
+                container.style.margin = '0 auto';
+                
+                // Create the back button
+                const backButton = document.createElement('button');
+                backButton.className = 'back-button';
+                backButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/>
+                    </svg>
+                    Back
+                `;
+                backButton.style.marginBottom = '20px';
+                
+                // Create the title
+                const title = document.createElement('h2');
+                title.textContent = 'Library';
+                title.style.color = 'var(--white-1)';
+                title.style.marginBottom = '20px';
+                
+                // Create the description
+                const description = document.createElement('p');
+                description.textContent = 'Browse the library of prompts for design inspiration.';
+                description.style.marginBottom = '20px';
+                
+                // Add event listener to the back button
+                backButton.addEventListener('click', function() {
+                    console.log('Back button clicked in Library page');
+                    // Restore the original content with the grid categories
+                    if (promptsContainer.getAttribute('data-original-content')) {
+                        promptsContainer.innerHTML = promptsContainer.getAttribute('data-original-content');
+                        
+                        // Re-add click handlers to categories
+                        const generateCategory = document.getElementById('generateCategory');
+                        if (generateCategory) {
+                            generateCategory.onclick = function() {
+                                showGeneratePage();
+                                return false;
+                            };
+                        }
+                        
+                        const startCategory = document.getElementById('startCategory');
+                        if (startCategory) {
+                            startCategory.onclick = function() {
+                                showStartPage();
+                                return false;
+                            };
+                        }
+                        
+                        const libraryCategory = document.getElementById('libraryCategory');
+                        if (libraryCategory) {
+                            libraryCategory.onclick = function() {
+                                showLibraryPage();
+                                return false;
+                            };
+                        }
+                    }
+                });
+                
+                // Add elements to the container
+                container.appendChild(backButton);
+                container.appendChild(title);
+                container.appendChild(description);
+                
+                // Add some sample library content
+                const libraryContent = document.createElement('div');
+                libraryContent.innerHTML = `
+                    <div style="margin-top: 30px;">
+                        <h3 style="color: var(--white-1); margin-bottom: 15px;">UI Design</h3>
+                        <div style="background-color: var(--eerie-black-1); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <p style="margin-bottom: 10px;">How can I create a cohesive color palette for my mobile app?</p>
+                            <button class="button button-primary" style="margin-top: 10px;">Use Prompt</button>
+                        </div>
+                        
+                        <h3 style="color: var(--white-1); margin-bottom: 15px;">UX Research</h3>
+                        <div style="background-color: var(--eerie-black-1); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                            <p style="margin-bottom: 10px;">What are the best practices for conducting user interviews?</p>
+                            <button class="button button-primary" style="margin-top: 10px;">Use Prompt</button>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(libraryContent);
+                
+                // Add the container to the prompts container
+                promptsContainer.appendChild(container);
+            }
+        }
+        
+        // Function to show the Start page (questionnaire)
+        function showStartPage() {
+            console.log('showStartPage called');
+            document.querySelector('.prompts-grid').style.display = 'none';
+            document.getElementById('questionnaireContainer').style.display = 'block';
+            
+            // Initialize option items to make them clickable
+            if (typeof initializeOptionItems === 'function') {
+                initializeOptionItems();
+            } else {
+                console.warn('initializeOptionItems function not found, implementing fallback');
+                // Fallback implementation if the function isn't available
+                document.querySelectorAll('.option-grid').forEach(grid => {
+                    const isMultipleSelect = grid.classList.contains('multiple-select');
+                    
+                    grid.querySelectorAll('.option-item').forEach(item => {
+                        // Add click event listener
+                        item.addEventListener('click', () => {
+                            if (isMultipleSelect) {
+                                // Toggle selection for multiple select
+                                item.classList.toggle('selected');
+                            } else {
+                                // Single selection behavior
+                                grid.querySelectorAll('.option-item').forEach(opt => {
+                                    opt.classList.remove('selected');
+                                });
+                                item.classList.add('selected');
+                            }
+                            
+                            // If this is an "Other" option, handle the input field
+                            if (item.classList.contains('other') && item.classList.contains('selected')) {
+                                // Create input field if it doesn't exist
+                                if (!item.querySelector('.other-input')) {
+                                    const input = document.createElement('input');
+                                    input.type = 'text';
+                                    input.className = 'other-input';
+                                    input.placeholder = 'Please specify';
+                                    
+                                    // Prevent click from toggling selection
+                                    input.addEventListener('click', e => e.stopPropagation());
+                                    
+                                    item.appendChild(input);
+                                    setTimeout(() => input.focus(), 0);
+                                }
+                            }
+                        });
+                    });
+                });
+            }
+            
+            // Make sure the Make Overview button is properly initialized
+            const makeOverviewButton = document.getElementById('makeOverviewButton');
+            if (makeOverviewButton) {
+                // Remove existing event listeners by cloning and replacing
+                const newButton = makeOverviewButton.cloneNode(true);
+                makeOverviewButton.parentNode.replaceChild(newButton, makeOverviewButton);
+                
+                // Add new event listener
+                newButton.addEventListener('click', () => {
+                    console.log('Make Overview button clicked');
+                    if (typeof generateProjectOverview === 'function') {
+                        // Generate overview data first
+                        generateProjectOverview();
+                        
+                        // Check if formatProjectOverview function exists
+                        if (typeof formatProjectOverview === 'function') {
+                            const overview = formatProjectOverview(false);
+                            
+                            // Use the showPromptPopup function from script.js if it exists
+                            if (typeof showPromptPopup === 'function') {
+                                showPromptPopup('Project Overview', overview, true);
+                            } else {
+                                // Fallback to the original popup implementation
+                                // Create and show popup with overview
+                                const overlay = document.createElement('div');
+                                overlay.className = 'prompt-overlay';
+                                overlay.style.display = 'flex';
+                                
+                                const popup = document.createElement('div');
+                                popup.className = 'prompt-popup';
+                                popup.style.maxWidth = '600px';
+                                
+                                popup.innerHTML = `
+                                    <div style="position: relative;">
+                                        <button class="close-prompt" style="position:absolute;top:0;right:0;background:none;border:none;font-size:24px;cursor:pointer;color:var(--light-gray);">×</button>
+                                        <h2 style="margin-top: 0; padding-right: 24px; color: var(--white-2); margin-bottom: 16px;">Project Overview</h2>
+                                    </div>
+                                    <div class="prompt-content" contenteditable="false" style="margin-bottom:20px;color:var(--white-3);white-space:pre-wrap;">${overview}</div>
+                                    <div class="prompt-actions">
+                                        <button class="copy-prompt" data-tooltip="Copy">
+                                            <svg class="copy-text" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M20 9H11C9.89543 9 9 9.89543 9 11V20C9 21.1046 9.89543 22 11 22H20C21.1046 22 22 21.1046 22 20V11C22 9.89543 21.1046 9 20 9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            <svg class="copied-text" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        <button class="send-to-chat" data-tooltip="Send to chat">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        <button class="edit-button" data-tooltip="Edit">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        <button class="save-button" data-tooltip="Save" style="display: none; background: var(--eerie-black-1); border-color: var(--main-purple); color: var(--main-purple);">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                `;
+                                
+                                // Add to document
+                                document.body.appendChild(overlay);
+                                overlay.appendChild(popup);
+                                
+                                // Get elements for event listeners
+                                const promptContent = popup.querySelector('.prompt-content');
+                                const closeButton = popup.querySelector('.close-prompt');
+                                const copyButton = popup.querySelector('.copy-prompt');
+                                const editButton = popup.querySelector('.edit-button');
+                                const saveButton = popup.querySelector('.save-button');
+                                
+                                // Close button handler
+                                closeButton.addEventListener('click', () => {
+                                    document.body.removeChild(overlay);
+                                });
+                                
+                                // Copy button handler
+                                copyButton.addEventListener('click', () => {
+                                    // Create a temporary textarea element to copy from
+                                    const tempTextArea = document.createElement('textarea');
+                                    tempTextArea.value = promptContent.textContent;
+                                    tempTextArea.setAttribute('readonly', '');
+                                    tempTextArea.style.position = 'absolute';
+                                    tempTextArea.style.left = '-9999px';
+                                    document.body.appendChild(tempTextArea);
+                                    
+                                    try {
+                                        // Select and copy the text
+                                        tempTextArea.select();
+                                        document.execCommand('copy');
+                                        
+                                        // Show copied state
+                                        copyButton.classList.add('copied');
+                                        
+                                        // Reset copied state after 2 seconds
+                                        setTimeout(() => {
+                                            copyButton.classList.remove('copied');
+                                        }, 2000);
+                                        
+                                        console.log('Project overview copied to clipboard');
+                                    } catch (err) {
+                                        console.error('Failed to copy text: ', err);
+                                    } finally {
+                                        // Remove the temporary element
+                                        document.body.removeChild(tempTextArea);
+                                    }
+                                });
+                                
+                                // Send to chat button handler
+                                popup.querySelector('.send-to-chat').addEventListener('click', () => {
+                                    // Set flag to indicate project overview has been sent to chat
+                                    if (typeof projectOverviewSentToChat !== 'undefined') {
+                                        projectOverviewSentToChat = true;
+                                    }
+                                    
+                                    // Switch to chat tab
+                                    document.querySelector('.nav-tab[data-section="chat"]').click();
+                                    
+                                    addMessage('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Project Information Sent', 'user'); 
+                                    addMessage('<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle; margin-right: 8px;"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Received', 'system');
+                                    
+                                    document.body.removeChild(overlay);
+                                });
+                                
+                                // Edit button handler
+                                editButton.addEventListener('click', () => {
+                                    promptContent.contentEditable = 'true';
+                                    promptContent.focus();
+                                    editButton.style.display = 'none';
+                                    saveButton.style.display = 'inline-flex';
+                                });
+                                
+                                // Save button handler
+                                saveButton.addEventListener('click', () => {
+                                    promptContent.contentEditable = 'false';
+                                    saveButton.style.display = 'none';
+                                    editButton.style.display = 'inline-flex';
+                                });
+                            }
+                        } else {
+                            alert('Project overview formatting is not available. Please make sure all required scripts are loaded.');
+                        }
+                    } else {
+                        alert('Project overview generation is not available. Please make sure you have entered your API key.');
+                    }
+                });
+            }
+        }
+        
+        // Function to generate prompts using OpenAI API
+        async function generatePrompts() {
+            const generateInput = document.getElementById('generateInput');
+            const includeOverview = document.getElementById('includeOverview');
+            const generatedPrompts = document.getElementById('generatedPrompts');
+            const generateButton = document.getElementById('generateSubmit');
+            
+            if (!generateInput || !generatedPrompts || !generateButton) return;
+            
+            const userPrompt = generateInput.value.trim();
+            if (!userPrompt) {
+                alert('Please enter a description of what you want to generate prompts for.');
+                return;
+            }
+            
+            // Disable button and show loading state
+            generateButton.disabled = true;
+            generateButton.textContent = 'Generating...';
+            generatedPrompts.innerHTML = '<div class="loading-dot-container"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';
+            
+            // Get project overview if checkbox is checked
+            let overviewText = '';
+            if (includeOverview && includeOverview.checked) {
+                // Try to get project overview from the questionnaire
+                const projectDescription = document.getElementById('projectDescription');
+                const targetAudience = document.getElementById('targetAudience');
+                
+                if (projectDescription && projectDescription.value) {
+                    overviewText += `Project Description: ${projectDescription.value}\n\n`;
+                }
+                
+                if (targetAudience && targetAudience.value) {
+                    overviewText += `Target Audience: ${targetAudience.value}\n\n`;
+                }
+                
+                // If no project info found, add a note
+                if (!overviewText) {
+                    overviewText = 'Note: No project overview information available yet.\n\n';
+                }
+            }
+            
+            try {
+                // Get the API key from the input field
+                const apiKeyInput = document.getElementById('apiKeyInput');
+                let apiKey = '';
+                
+                if (apiKeyInput && apiKeyInput.value) {
+                    apiKey = apiKeyInput.value.trim();
+                } else {
+                    // If no API key, show a message and simulate response
+                    generatedPrompts.innerHTML = '<div class="prompt-item">Please enter your OpenAI API key in the chat section to generate prompts.</div>';
+                    generateButton.disabled = false;
+                    generateButton.textContent = 'Generate';
+                    return;
+                }
+                
+                // Prepare the prompt for OpenAI
+                const promptText = `Generate 3 different design-related prompts for an AI chat within a Figma plugin based on the following topic: "${userPrompt}".\n
+                GUIDELINES:\n
+                - Generate each prompt as a separate paragraph WITHOUT numbering them, OR giving them titles (e.g. "Prompt 1", "Prompt 2", "Prompt 3"), OR adding quotation marks: just provide the prompt text.\n
+                - Make the prompts specific, actionable, and focused on design aspects.\n
+                ${overviewText ? `Include the following project information in your considerations:\n${overviewText}` : ''}
+                Make the prompts specific, actionable, and focused on design aspects.`;
+                
+                // Call OpenAI API
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'You are a helpful assistant that generates design prompts for an AI chat within the prototyping software Figma. Generate each prompt as a separate paragraph without numbering them, or giving them titles (e.g. "Prompt 1", "Prompt 2", "Prompt 3"), or adding quotation marks: just provide the prompt text.'
+                            },
+                            {
+                                role: 'user',
+                                content: promptText
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 500
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const generatedText = data.choices[0].message.content;
+                
+                // Split the generated text into separate prompts
+                // First try to split by double newlines, then by numbered patterns if needed
+                let prompts = generatedText.split(/\n\s*\n/).filter(p => p.trim() !== '');
+                
+                // If we don't have at least 3 prompts, try to split by numbered patterns
+                if (prompts.length < 3) {
+                    prompts = generatedText.split(/\d+\.\s+/).filter(p => p.trim() !== '');
+                    // Remove the first empty element if it exists
+                    if (prompts.length > 0 && prompts[0].trim() === '') {
+                        prompts.shift();
+                    }
+                }
+                
+                // Display the prompts
+                generatedPrompts.innerHTML = '';
+                prompts.forEach((prompt, index) => {
+                    // Clean up the prompt text - remove any remaining numbering
+                    let cleanPrompt = prompt.trim();
+                    cleanPrompt = cleanPrompt.replace(/^\d+\.\s*/, ''); // Remove numbering at the start
+                    cleanPrompt = cleanPrompt.replace(/^[•\-*]\s*/, ''); // Remove bullet points
+                    
+                    // Create a div for each prompt
+                    const promptElement = document.createElement('div');
+                    promptElement.className = 'prompt-item';
+                    promptElement.textContent = cleanPrompt;
+                    
+                    // Create a div for the prompt actions
+                    const actionsElement = document.createElement('div');
+                    actionsElement.className = 'prompt-item-actions';
+                    
+                    // Regenerate button
+                    const regenerateButton = document.createElement('button');
+                    regenerateButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4.01 7.58 4.01 12C4.01 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z" fill="currentColor"/></svg>';
+                    regenerateButton.setAttribute('data-tooltip', 'Regenerate');
+                    regenerateButton.addEventListener('click', function(e) {
+                        // Prevent event bubbling
+                        e.stopPropagation();
+                        
+                        // Get the current prompt text
+                        const promptText = promptElement.textContent;
+                        
+                        // Call the generateSpecificPrompt function with the current prompt text
+                        generateSpecificPrompt(`Generate a new design prompt similar to this one: "${promptText}"`, promptElement);
+                    });
+                    actionsElement.appendChild(regenerateButton);
+                    
+                    // Copy button
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-prompt';
+                    copyButton.setAttribute('data-tooltip', 'Copy');
+                    copyButton.innerHTML = `
+                        <span class="copy-text">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 9H11C9.89543 9 9 9.89543 9 11V20C9 21.1046 9.89543 22 11 22H20C21.1046 22 22 21.1046 22 20V11C22 9.89543 21.1046 9 20 9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M5 15H4C3.46957 15 2.96086 14.7893 2.58579 14.4142C2.21071 14.0391 2 13.5304 2 13V4C2 3.46957 2.21071 2.96086 2.58579 2.58579C2.96086 2.21071 3.46957 2 4 2H13C13.5304 2 14.0391 2.21071 14.4142 2.58579C14.7893 2.96086 15 3.46957 15 4V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span class="copied-text">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                    `;
+                    copyButton.addEventListener('click', function() {
+                        // Create a temporary textarea element to copy from
+                        const textarea = document.createElement('textarea');
+                        textarea.value = cleanPrompt;
+                        textarea.setAttribute('readonly', '');
+                        textarea.style.position = 'absolute';
+                        textarea.style.left = '-9999px';
+                        document.body.appendChild(textarea);
+                        
+                        // Select and copy the text
+                        textarea.select();
+                        document.execCommand('copy');
+                        
+                        // Clean up
+                        document.body.removeChild(textarea);
+                        
+                        // Show copied state
+                        copyButton.classList.add('copied');
+                        
+                        // Reset copied state after 2 seconds
+                        setTimeout(() => {
+                            copyButton.classList.remove('copied');
+                        }, 2000);
+                    });
+                    actionsElement.appendChild(copyButton);
+                    
+                    // Send to chat button
+                    const sendToChatButton = document.createElement('button');
+                    sendToChatButton.setAttribute('data-tooltip', 'Send to Chat');
+                    sendToChatButton.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    `;
+                    sendToChatButton.addEventListener('click', function(e) {
+                        // Prevent event bubbling
+                        e.stopPropagation();
+                        
+                        // Get the chat input element using class selector
+                        const chatInput = document.querySelector('.chat-input');
+                        
+                        // If chat input exists, set its value to the prompt text and focus it
+                        if (chatInput) {
+                            chatInput.value = cleanPrompt;
+                            chatInput.disabled = false;
+                            
+                            // Switch to the chat tab
+                            const chatTab = document.querySelector('.nav-tab[data-section="chat"]');
+                            if (chatTab) {
+                                chatTab.click();
+                            }
+                            
+                            // Focus the chat input
+                            setTimeout(() => {
+                                chatInput.focus();
+                            }, 100);
+                        }
+                    });
+                    actionsElement.appendChild(sendToChatButton);
+                    
+                    // Edit button
+                    const editButton = document.createElement('button');
+                    editButton.className = 'edit-button';
+                    editButton.setAttribute('data-tooltip', 'Edit');
+                    editButton.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    `;
+                    editButton.addEventListener('click', function(e) {
+                        // Prevent event bubbling
+                        e.stopPropagation();
+                        
+                        // Toggle the contenteditable attribute
+                        const isEditable = promptElement.getAttribute('contenteditable') === 'true';
+                        
+                        if (!isEditable) {
+                            // Make the prompt editable
+                            promptElement.setAttribute('contenteditable', 'true');
+                            promptElement.focus();
+                            
+                            // Add a class to the edit button to show it's active
+                            editButton.classList.add('active');
+                        } else {
+                            // Make the prompt non-editable
+                            promptElement.setAttribute('contenteditable', 'false');
+                            
+                            // Remove the active class from the edit button
+                            editButton.classList.remove('active');
+                        }
+                    });
+                    actionsElement.appendChild(editButton);
+                    
+                    // Save button
+                    const saveButton = document.createElement('button');
+                    saveButton.className = 'save-button';
+                    saveButton.setAttribute('data-tooltip', 'Save');
+                    saveButton.innerHTML = `
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    `;
+                    saveButton.addEventListener('click', function(e) {
+                        // Prevent event bubbling
+                        e.stopPropagation();
+                        
+                        // Make the prompt non-editable
+                        promptElement.setAttribute('contenteditable', 'false');
+                        
+                        // Remove the active class from the edit button
+                        editButton.classList.remove('active');
+                    });
+                    actionsElement.appendChild(saveButton);
+                    
+                    // Append the actions to the prompt element
+                    promptElement.appendChild(actionsElement);
+                    
+                    generatedPrompts.appendChild(promptElement);
+                });
+                
+                // Scroll to the generated prompts
+                generatedPrompts.scrollIntoView({ behavior: 'smooth' });
+                
+            } catch (error) {
+                console.error('Error generating prompts:', error);
+                generatedPrompts.innerHTML = `<div class="prompt-item">Error generating prompts: ${error.message}</div>`;
+            } finally {
+                // Re-enable button
+                generateButton.disabled = false;
+                generateButton.textContent = 'Generate';
+            }
+        }
+        
+        // Direct click handler for the Generate category
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Adding direct click handlers for categories');
+            
+            // Generate category
+            const generateCategory = document.getElementById('generateCategory');
+            if (generateCategory) {
+                generateCategory.onclick = function() {
+                    console.log('Generate category clicked directly');
+                    showGeneratePage();
+                    return false;
+                };
+            }
+            
+            // Start category has inline onclick attribute, no need to add handler here
+            
+            // Library category
+            const libraryCategory = document.getElementById('libraryCategory');
+            if (libraryCategory) {
+                libraryCategory.onclick = function() {
+                    console.log('Library category clicked directly');
+                    if (typeof showLibraryPage === 'function') {
+                        showLibraryPage();
+                    } else {
+                        console.error('showLibraryPage function not found');
+                    }
+                    return false;
+                };
+            }
+            
+            // Saved category
+            const savedCategory = document.getElementById('savedCategory');
+            if (savedCategory) {
+                savedCategory.onclick = function() {
+                    console.log('Saved category clicked directly');
+                    showSavedPage();
+                    return false;
+                };
+            }
+            
+            // Initialize back button in questionnaire
+            initializeBackButtons();
+        });
+        
+        // Function to initialize all back buttons
+        function initializeBackButtons() {
+            console.log('Initializing back buttons');
+            
+            // Back button in questionnaire
+            const backButton = document.getElementById('backToCategories');
+            if (backButton && !backButton.hasAttribute('onclick')) {
+                console.log('Setting up back button in questionnaire');
+                // Remove existing event listeners by cloning and replacing
+                const newBackButton = backButton.cloneNode(true);
+                backButton.parentNode.replaceChild(newBackButton, backButton);
+                
+                // Add new event listener
+                newBackButton.addEventListener('click', function() {
+                    console.log('Back button clicked in questionnaire');
+                    // Hide the questionnaire container
+                    document.getElementById('questionnaireContainer').style.display = 'none';
+                    // Show the prompts grid
+                    document.querySelector('.prompts-grid').style.display = 'grid';
+                    return false;
+        });
+            }
+        }
+        
+        // Define the showGeneratePage function directly in the HTML
+        function showGeneratePage() {
+            console.log('showGeneratePage called');
+            
+            // Get the prompt container
+            const promptsContainer = document.querySelector('.prompt-container');
+            if (!promptsContainer) {
+                console.error('Prompt container not found');
+                return;
+            }
+            
+            // Save the original content
+            if (!promptsContainer.getAttribute('data-original-content')) {
+                promptsContainer.setAttribute('data-original-content', promptsContainer.innerHTML);
+            }
+            
+            // Clear the container
+            promptsContainer.innerHTML = '';
+            
+            // Create a container with proper class for styling
+            const container = document.createElement('div');
+            container.className = 'generate-form-container';
+            
+            // Ensure the container is scrollable
+            const promptsSection = document.getElementById('prompts');
+            if (promptsSection) {
+                promptsSection.style.overflow = 'auto';
+            }
+            
+            // Create the header container to hold back button and category header
+            const headerContainer = document.createElement('div');
+            headerContainer.style.display = 'flex';
+            headerContainer.style.justifyContent = 'space-between';
+            headerContainer.style.alignItems = 'center';
+            headerContainer.style.marginBottom = '0';
+            
+            // Create the back button
+            const backButton = document.createElement('button');
+            backButton.className = 'back-button';
+            backButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor"/>
+                </svg>
+                Back
+            `;
+            
+            // Create the category header with icon (similar to other pages)
+            const categoryHeader = document.createElement('div');
+            categoryHeader.className = 'category-header';
+            categoryHeader.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="category-icon" viewBox="0 0 24 24">
+                    <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
+                </svg>
+                <h2>Generate</h2>
+            `;
+            
+            // Add back button and category header to the header container
+            headerContainer.appendChild(backButton);
+            headerContainer.appendChild(categoryHeader);
+            
+            // Create the description
+            const description = document.createElement('p');
+            description.textContent = 'Please describe what you want to generate prompts for.';
+            description.className = 'generate-description';
+            
+            // Create the form
+            const generateForm = document.createElement('form');
+            generateForm.className = 'generate-form';
+            generateForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                generatePrompts();
+            });
+            
+            // Create the text input
+            const textInput = document.createElement('textarea');
+            textInput.id = 'generateInput';
+            textInput.className = 'form-control';
+            textInput.placeholder = 'E.g. functionalities, style guide, navigation, etc.';
+            textInput.style.minHeight = '50px';
+            textInput.required = true;
+            
+            // Create the checkbox for including project overview
+            const checkboxContainer = document.createElement('div');
+            checkboxContainer.className = 'form-group';
+            checkboxContainer.style.flexDirection = 'row';
+            checkboxContainer.style.alignItems = 'center';
+            checkboxContainer.style.gap = '10px';
+            checkboxContainer.style.marginTop = '16px';
+            checkboxContainer.style.marginBottom = '20px';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'includeOverview';
+            checkbox.className = 'overview-checkbox';
+            checkbox.style.margin = '0';
+            checkbox.style.width = '18px';
+            checkbox.style.height = '18px';
+            checkbox.style.minWidth = '18px';
+            
+            const checkboxLabel = document.createElement('label');
+            checkboxLabel.setAttribute('for', 'includeOverview');
+            checkboxLabel.textContent = 'Include project overview information';
+            checkboxLabel.style.margin = '0';
+            checkboxLabel.style.color = 'var(--light-gray)';
+            
+            checkboxContainer.appendChild(checkbox);
+            checkboxContainer.appendChild(checkboxLabel);
+            
+            // Create the generate button
+            const generateButton = document.createElement('button');
+            generateButton.type = 'submit';
+            generateButton.id = 'generateSubmit';
+            generateButton.className = 'button button-primary';
+            generateButton.textContent = 'Generate';
+            
+            // Create the generated prompts container
+            const generatedPrompts = document.createElement('div');
+            generatedPrompts.id = 'generatedPrompts';
+            generatedPrompts.className = 'generated-prompts';
+            generatedPrompts.style.marginTop = '30px';
+            
+            // Add elements to the form
+            generateForm.appendChild(textInput);
+            generateForm.appendChild(checkboxContainer);
+            generateForm.appendChild(generateButton);
+            
+            // Add event listener to the back button
+            backButton.addEventListener('click', function() {
+                console.log('Back button clicked in Generate page');
+                // Restore the original content with the grid categories
+                if (promptsContainer.getAttribute('data-original-content')) {
+                    promptsContainer.innerHTML = promptsContainer.getAttribute('data-original-content');
+                    
+                    // Re-add click handlers to categories
+                    const generateCategory = document.getElementById('generateCategory');
+                    if (generateCategory) {
+                        generateCategory.onclick = function() {
+                            showGeneratePage();
+                            return false;
+                        };
+                    }
+                    
+                    const startCategory = document.getElementById('startCategory');
+                    if (startCategory) {
+                        startCategory.onclick = function() {
+                            showStartPage();
+                            return false;
+                        };
+                    }
+                    
+                    const libraryCategory = document.getElementById('libraryCategory');
+                    if (libraryCategory) {
+                        libraryCategory.onclick = function() {
+                            showLibraryPage();
+                            return false;
+                        };
+                    }
+                }
+            });
+            
+            // Add elements to the container
+            container.appendChild(headerContainer);
+            container.appendChild(description);
+            container.appendChild(generateForm);
+            container.appendChild(generatedPrompts);
+            
+            // Add the container to the prompts container
+            promptsContainer.appendChild(container);
+            
+            // Focus on the input field
+            setTimeout(() => {
+                textInput.focus();
+            }, 100);
+        }
+
+        // Function to generate a specific prompt (used for regeneration)
+        async function generateSpecificPrompt(specificPrompt, promptElement) {
+            // Save the actions element before updating the content
+            const actionsElement = promptElement.querySelector('.prompt-item-actions');
+            if (actionsElement) {
+                // Clone it to preserve all event listeners
+                actionsElement.remove();
+            }
+            
+            // Show loading state in the prompt element
+            const originalContent = promptElement.textContent;
+            promptElement.innerHTML = '<div class="loading-dot-container"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>';
+            
+            try {
+                // Get the API key from the input field
+                const apiKeyInput = document.getElementById('apiKeyInput');
+                let apiKey = '';
+                
+                if (apiKeyInput && apiKeyInput.value) {
+                    apiKey = apiKeyInput.value.trim();
+                } else {
+                    // If no API key, restore original content and show error
+                    promptElement.textContent = originalContent;
+                    if (actionsElement) {
+                        promptElement.appendChild(actionsElement);
+                    }
+                    return;
+                }
+                
+                // Call OpenAI API
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-3.5-turbo',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'You are a helpful assistant that generates design prompts for an AI chat within the prototyping software Figma. Generate each prompt as a separate paragraph without numbering them, or giving them titles (e.g. "Prompt 1", "Prompt 2", "Prompt 3"), or adding quotation marks: just provide the prompt text.'
+                            },
+                            {
+                                role: 'user',
+                                content: specificPrompt
+                            }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 300
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const generatedText = data.choices[0].message.content;
+                
+                // Clean up the generated text
+                let cleanPrompt = generatedText.trim();
+                cleanPrompt = cleanPrompt.replace(/^\d+\.\s*/, ''); // Remove numbering at the start
+                cleanPrompt = cleanPrompt.replace(/^[•\-*]\s*/, ''); // Remove bullet points
+                
+                // Update the prompt element with the new content
+                promptElement.textContent = cleanPrompt;
+                
+                // Re-add the actions element if it exists
+                if (actionsElement) {
+                    promptElement.appendChild(actionsElement);
+                }
+                
+            } catch (error) {
+                console.error('Error regenerating prompt:', error);
+                promptElement.textContent = originalContent;
+                
+                // Re-add the actions element if it exists
+                if (actionsElement) {
+                    promptElement.appendChild(actionsElement);
+                }
+            }
+        }
+    </script>
+</body>
+</html> 
